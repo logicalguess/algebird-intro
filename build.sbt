@@ -1,4 +1,4 @@
-name := "aklgebird-intro"
+name := "algebird-intro"
 
 version := "1.0"
 
