@@ -30,28 +30,13 @@ object StreamingHLL {
     val ssc = StreamingContext.getActiveOrCreate(createStreamingContext)
 
     val stream = ssc.receiverStream(Source)
-
     val users = stream.map(id => id)
-
-    val globalHll = new HyperLogLogMonoid(12)
     var userSet: Set[String] = Set()
 
-    val approxUsers = users.mapPartitions(ids => {
-      val hll = new HyperLogLogMonoid(12)
-      ids.map(id => hll(id.getBytes("utf-8")))
-    }).reduce(_ + _)
+    val globalHll = new HyperLogLogMonoid(12)
+    var h = globalHll.zero
 
     val exactUsers = users.map(id => Set(id)).reduce(_ ++ _)
-
-    var h = globalHll.zero
-    approxUsers.foreachRDD(rdd => {
-      if (rdd.count() != 0) {
-        val partial = rdd.first()
-        h += partial
-        println("Approx distinct users this batch: %d".format(partial.estimatedSize.toInt))
-        println("Approx distinct users overall: %d".format(globalHll.estimateSize(h).toInt))
-      }
-    })
 
     exactUsers.foreachRDD(rdd => {
       if (rdd.count() != 0) {
@@ -60,6 +45,20 @@ object StreamingHLL {
         println("Exact distinct users this batch: %d".format(partial.size))
         println("Exact distinct users overall: %d".format(userSet.size))
         println("Error rate: %2.5f%%".format(((globalHll.estimateSize(h) / userSet.size.toDouble) - 1) * 100))
+      }
+    })
+
+    val approxUsers = users.mapPartitions(ids => {
+      val hll = new HyperLogLogMonoid(12)
+      ids.map(id => hll(id.getBytes("utf-8")))
+    }).reduce(_ + _)
+
+    approxUsers.foreachRDD(rdd => {
+      if (rdd.count() != 0) {
+        val partial = rdd.first()
+        h += partial
+        println("Approx distinct users this batch: %d".format(partial.estimatedSize.toInt))
+        println("Approx distinct users overall: %d".format(globalHll.estimateSize(h).toInt))
       }
     })
 

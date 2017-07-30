@@ -14,6 +14,7 @@ object HLLWordCount {
 
     // create algebird HLL
     val hll = new HyperLogLogMonoid(bits = 22)
+
     // convert data elements to a seq of hlls
     val hlls = aliceWords.map { str =>
       val bytes = str.getBytes("utf-8")
