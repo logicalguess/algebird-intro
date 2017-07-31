@@ -44,7 +44,6 @@ class ComponentTest extends WordSpecLike with Matchers {
 
 
       val bayesMonoid = BayesMonoid[Int, Int](likelihood _)
-//      val interactor = MonoidInteractor[Int, Pmf[Int], Bayes[Int, Int]](d => BayesData(List(d)), bayesMonoid, bpmf => bpmf.asInstanceOf[BayesPmf[Int]].pmf)
 
       val aggregator = new Aggregator[Int, Bayes[Int, Int], Pmf[Int]] {
         override def prepare(d: Int): Bayes[Int, Int] = BayesData(List(d))
@@ -52,8 +51,11 @@ class ComponentTest extends WordSpecLike with Matchers {
         override def present(bpmf: Bayes[Int, Int]): Pmf[Int] = bpmf.asInstanceOf[BayesPmf[Int]].pmf
       }
 
+      //val interactor = SemigroupInteractor(aggregator.prepare _, aggregator.semigroup, aggregator.present _)
+
       val interactor = AggregatorInteractor(aggregator)
-      val component: LogicComponent[Int, Pmf[Int], Bayes[Int, Int]] = LogicComponent(Pmf[Int](hypos), interactor, Sink.foreach(println))
+      val component: LogicComponent[Int, Pmf[Int], Bayes[Int, Int]] =
+        LogicComponent(Pmf[Int](hypos), interactor, Sink.foreach(println))
 
 
       List(3)

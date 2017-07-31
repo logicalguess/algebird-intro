@@ -6,7 +6,7 @@ package logicalguess.algebird.component
 
 import akka.stream.scaladsl.{Flow, Sink, Source, SourceQueueWithComplete}
 import akka.stream.{ActorMaterializer, OverflowStrategy}
-import com.twitter.algebird.{Aggregator, Monoid, Semigroup}
+import com.twitter.algebird.{Aggregator, Semigroup}
 
 trait Interactor[I, O, -S] {
   def apply(implicit init: S): Flow[I, O, _]
@@ -22,8 +22,8 @@ case class PFInteractor[I, O, S](logic: PartialFunction[(I, S), S], transformer:
   }
 }
 
-case class MonoidInteractor[I, O, S](prepare: Function[I, S], logic: Monoid[S], transformer: Function[S, O])
-                                (implicit mat: ActorMaterializer) extends Interactor[I, O, S] {
+case class SemigroupInteractor[I, O, S](prepare: Function[I, S], logic: Semigroup[S], transformer: Function[S, O])
+                                       (implicit mat: ActorMaterializer) extends Interactor[I, O, S] {
 
   def apply(implicit init: S): Flow[I, O, _] = {
     val f = Flow[I].scan(init)((state: S, event: I) => logic.plus(state, prepare(event)))
