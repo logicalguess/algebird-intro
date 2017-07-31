@@ -13,7 +13,7 @@ case class BayesMonoid[Data, Hypothesis](likelihood: (Data, Hypothesis) => Doubl
       case (_, BayesZero) => left
       case (BayesData(lds), BayesData(rds)) => BayesData(lds ::: rds)
       case (BayesPmf(pmf), BayesData(ds)) => BayesPmf(ds.foldLeft(pmf.asInstanceOf[Pmf[Hypothesis]]) { (current, d) =>
-        updatePmf(current.toPmf, d)
+        updatePmf(current, d)
       })
       case _ => right
     }
