@@ -8,7 +8,7 @@ import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.Sink
 import com.twitter.algebird.{Aggregator, Semigroup}
-import logicalguess.algebird.bayes.{Bayes, BayesData, BayesMonoid, BayesPmf}
+import logicalguess.algebird.bayes._
 import logicalguess.algebird.component._
 import org.scalatest.{Matchers, WordSpecLike}
 import thinkbayes.Pmf
@@ -43,12 +43,22 @@ class ComponentTest extends WordSpecLike with Matchers {
 //      val component = LogicComponent(Pmf[Int](hypos), interactor, Sink.foreach(println))
 
 
-      val bayesMonoid = BayesMonoid[Int, Int](likelihood _)
+//      val bayesMonoid = BayesMonoid[Int, Int](likelihood _)
+//
+//      val aggregator = new Aggregator[Int, Bayes[Int, Int], Pmf[Int]] {
+//        override def prepare(d: Int): Bayes[Int, Int] = BayesData(List(d))
+//        override def semigroup: Semigroup[Bayes[Int, Int]] = bayesMonoid
+//        override def present(bpmf: Bayes[Int, Int]): Pmf[Int] = bpmf.asInstanceOf[BayesPmf[Int]].pmf
+//      }
 
-      val aggregator = new Aggregator[Int, Bayes[Int, Int], Pmf[Int]] {
-        override def prepare(d: Int): Bayes[Int, Int] = BayesData(List(d))
-        override def semigroup: Semigroup[Bayes[Int, Int]] = bayesMonoid
-        override def present(bpmf: Bayes[Int, Int]): Pmf[Int] = bpmf.asInstanceOf[BayesPmf[Int]].pmf
+      val bayesMonoid = BayesStateMonoid[Int, Int](likelihood _)
+
+      type Bayes[I, H] = Component[I, Pmf[H]]
+
+      val aggregator = new Aggregator[Int, Component[Int, Pmf[Int]], Pmf[Int]] {
+        override def prepare(d: Int): Component[Int, Pmf[Int]] = ComponentInput(List(d))
+        override def semigroup: Semigroup[Component[Int, Pmf[Int]]] = bayesMonoid
+        override def present(c: Component[Int, Pmf[Int]]): Pmf[Int] = c.state
       }
 
       //val interactor = SemigroupInteractor(aggregator.prepare _, aggregator.semigroup, aggregator.present _)

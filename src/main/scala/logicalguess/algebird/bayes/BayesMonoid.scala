@@ -32,7 +32,7 @@ case class BayesPmf[Hypothesis](val pmf: Pmf[Hypothesis]) extends Bayes[Nothing,
 
 object Bayes {
   implicit def BayesToBayesPmf[Hypothesis, Data](b: Bayes[Data, Hypothesis]) = b.asInstanceOf[BayesPmf[Hypothesis]]
-  implicit def BayesDataToBayesPmf[Hypothesis, Data](b: BayesData[Data]) = b.asInstanceOf[BayesPmf[Hypothesis]]
+  //implicit def BayesDataToBayesPmf[Hypothesis, Data](b: BayesData[Data]) = b.asInstanceOf[BayesPmf[Hypothesis]]
   implicit def BayesToBayesData[Data](b: Bayes[Data, _]) = b.asInstanceOf[BayesData[Data]]
   implicit def PmfToBayesPmf[Hypothesis](pmf: Pmf[Hypothesis]) = BayesPmf(pmf)
   implicit def DataToBayesData[Data](p: Data) = BayesData[Data](List(p))
