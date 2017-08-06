@@ -1,4 +1,4 @@
-package algebird.sgd
+package algebird.component
 
 /**
   * Created by logicalguess on 7/31/17.
@@ -8,15 +8,12 @@ import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.Sink
 import com.twitter.algebird.{Aggregator, Semigroup}
-import logicalguess.algebird.bayes._
 import logicalguess.algebird.component._
 import logicalguess.algebird.sgd.SGDStateMonoid
 import org.scalatest.{Matchers, WordSpecLike}
-import thinkbayes.Pmf
 
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
-import scala.io.StdIn
 
 class SGDComponentTest extends WordSpecLike with Matchers {
 

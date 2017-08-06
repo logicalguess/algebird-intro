@@ -17,7 +17,7 @@ import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 import scala.io.StdIn
 
-class ComponentTest extends WordSpecLike with Matchers {
+class BayesComponentTest extends WordSpecLike with Matchers {
 
   "Aggregator as interactor" should {
     "component" in {
