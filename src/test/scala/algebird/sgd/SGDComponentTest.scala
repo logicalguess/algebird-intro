@@ -37,9 +37,9 @@ class SGDComponentTest extends WordSpecLike with Matchers {
         override def present(c: SGDComponent): IndexedSeq[Double] = c.state
       }
 
-      val interactor = SemigroupInteractor(aggregator.prepare _, aggregator.semigroup, aggregator.present _)
+      //val interactor = SemigroupInteractor(aggregator.prepare _, aggregator.semigroup, aggregator.present _)
 
-      //val interactor = AggregatorInteractor(aggregator)
+      val interactor = AggregatorInteractor(aggregator)
       val component: LogicComponent[(Double, IndexedSeq[Double]), IndexedSeq[Double], SGDComponent] =
         LogicComponent(IndexedSeq[Double](0.0, 0.0), interactor, Sink.foreach(println))
 
@@ -49,6 +49,8 @@ class SGDComponentTest extends WordSpecLike with Matchers {
         val Array(x: Double, y: Double) = entry.split(",").map(_.trim.toDouble)
         component.receive(y, IndexedSeq(x))
       }
+
+      //Vector(1.5785046049371114, 0.03369039016126796)
 
       //StdIn.readLine()
       Thread.sleep(3000)
