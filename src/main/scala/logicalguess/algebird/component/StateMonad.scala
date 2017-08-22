@@ -90,14 +90,17 @@ object Test {
     println(sm.run(1))
 
     val seqm = StateMonad.sequence(List(2, 3, 5).map(c.process))
-    println(seqm.run(1))
+    println("sequence: " + seqm.run(1))
+
+    val trm = StateMonad.traverse(List(2, 3, 5))(c.process)
+    println("traverse: " + trm.run(1))
 
     val chainm = StateMonad.chain(List(2, 3, 5).map(c.process))
-    println(chainm.run(1))
+    println("chain: " + chainm.run(1))
 
 
     val updm: StateMonad[Int, List[Unit]] = StateMonad.sequence[Int, Unit](List(2, 3, 5).map(c.update))
-    println(updm.run(1)._1)
+    println("update: " + updm.run(1)._1)
 
     val sum: (Int, Int, Int) => Int = _ + _ + _
     val sumCurried: Int => Int => Int => Int = sum.curried
@@ -117,12 +120,12 @@ object Test {
       }
     }
 
-    val fm = StateMonad.chain(List(2, 3, 5).map(factory))
-    println(fm.run(sum.curried)._2)
+    val fm = StateMonad.traverse(List(2, 3, 5))(factory)
+    println("traverse factory int: " + fm.run(sum.curried)._2)
 
     val concat: (String, String, String) => String = _ + _ + _
-    val fm1 = StateMonad.chain(List("a", "b", "c").map(factory))
-    println(fm1.run(concat.curried)._2)
+    val fm1 = StateMonad.traverse(List("a", "b", "c"))(factory)
+    println("traverse factory string: " + fm1.run(concat.curried)._2)
 
     object fs {
       def comb(list: Any*): String = {
