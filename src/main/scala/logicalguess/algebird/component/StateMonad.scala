@@ -97,10 +97,12 @@ object Test {
 
     val chainm = StateMonad.chain(List(2, 3, 5).map(c.process))
     println("chain: " + chainm.run(1))
+    // (11, 22)
 
 
     val updm: StateMonad[Int, List[Unit]] = StateMonad.sequence[Int, Unit](List(2, 3, 5).map(c.update))
     println("update: " + updm.run(1)._1)
+    // 11
 
     val sum: (Int, Int, Int) => Int = _ + _ + _
     val sumCurried: Int => Int => Int => Int = sum.curried
@@ -112,20 +114,21 @@ object Test {
     println(g(3)) //6
 
     def factory[A](a: A): StateMonad[A => Any, Any] = {
-      type X = A => Any
-      StateMonad[X, Any] { f =>
-        val x: X = if (f.apply(a).isInstanceOf[X]) f.apply(a).asInstanceOf[X] else identity
+      StateMonad[A => Any, Any] { f =>
+        val g: A => Any = if (f(a).isInstanceOf[A => Any]) f(a).asInstanceOf[A => Any] else identity
 
-        (x, f.apply(a))
+        (g, f(a))
       }
     }
 
     val fm = StateMonad.traverse(List(2, 3, 5))(factory)
     println("traverse factory int: " + fm.run(sum.curried)._2)
+    //traverse factory int: List(<function1>, <function1>, 10)
 
     val concat: (String, String, String) => String = _ + _ + _
     val fm1 = StateMonad.traverse(List("a", "b", "c"))(factory)
     println("traverse factory string: " + fm1.run(concat.curried)._2)
+    //traverse factory string: List(<function1>, <function1>, abc)
 
     object fs {
       def comb(list: Any*): String = {
@@ -140,7 +143,7 @@ object Test {
     println(fs.comb(args: _*))
 
     import scala.reflect.runtime.universe._
-    val im = runtimeMirror(this.getClass.getClassLoader).reflect(fs)
+    val im = runtimeMirror(fs.getClass.getClassLoader).reflect(fs)
 
     val method = im.symbol.typeSignature.member(TermName("comb")).asMethod
     println("comb: " + im.reflectMethod(method)(args))
